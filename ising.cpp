@@ -11,23 +11,57 @@ void IsingInit(std::vector<int> &spin_config);
 
 void printVec(std::vector<int> vec);
 
-double deltaH(std::vector<int> spin_config, double J, int x, int N);
+double deltaH(std::vector<int> spin_config, const double J, int x, const int N);
 
-int main(){
-    int N {3};
-    double beta {0.1};
-    std::vector<int> spin_config(N*N,0);
+double MetropolisSweep(std::vector<int> &spin_config, const double J, const double beta, const int N);
+
+double meas_magnetization(std::vector<int> &spin_config, const int N);
+
+int main()
+{
+    const int N{32};
+    const double beta{0.1};
+    const double J{1.};
+    const int Nsweeps{5000};
+    const int discarded_sweeps {1000};
+
+    double m{0.};
+    double acceptance_rate{0};
+
+    std::vector<int> spin_config(N * N, 0);
 
     IsingInit(spin_config);
 
-    //printVec(spin_config);
+    // printVec(spin_config);
 
-    //std::cout << deltaH(spin_config, 1, 4, N) << std::endl;
-    
+    // std::cout << deltaH(spin_config, 1, 4, N) << std::endl;
+
+    for (int i = 0; i < Nsweeps; i++)
+    {
+        acceptance_rate += MetropolisSweep(spin_config, J, beta, N);
+        
+        if (i > discarded_sweeps)
+            m += meas_magnetization(spin_config, N);
+    }
+    std::cout << "Average acceptance rate is : " << acceptance_rate / double(Nsweeps) << "\n";
+    std::cout << "Average magnetization is : " << m / double(Nsweeps);
+
     return 0;
 }
 
-double randUnif(double a, double b){
+double meas_magnetization(std::vector<int> &spin_config, const int N)
+{
+    double m{0.};
+    for (int x = 0; x < N * N; x++)
+    {
+        m += spin_config[x];
+    }
+
+    return m / double(N * N);
+}
+
+double randUnif(double a, double b)
+{
     std::random_device rd;  // Will be used to obtain a seed for the random number engine
     std::mt19937 gen(rd()); // Standard mersenne_twister_engine seeded with rd()
     std::uniform_real_distribution<> dis(a, b);
@@ -35,26 +69,32 @@ double randUnif(double a, double b){
     return dis(gen);
 }
 
-void IsingInit(std::vector<int> &spin_config){
-    for (int i = 0; i < spin_config.size(); i++){
-        if (randUnif(0.,1.) < 0.5)
+void IsingInit(std::vector<int> &spin_config)
+{
+    for (int i = 0; i < spin_config.size(); i++)
+    {
+        if (randUnif(0., 1.) < 0.5)
             spin_config[i] = -1;
-        else 
+        else
             spin_config[i] = 1;
     }
 }
 
-void printVec(std::vector<int> vec){
-    for (auto i : vec){
+void printVec(std::vector<int> vec)
+{
+    for (auto i : vec)
+    {
         std::cout << i << " ";
     }
 }
 
-double deltaH(std::vector<int> spin_config, double J, int x, int N){
-    int dH {0};
+double deltaH(std::vector<int> spin_config, const double J, int x, int N)
+{
+    int dH{0};
 
-    for(int i = 0; i < 2; i++){
-        dH += spin_config[(x + i * (N-1) + 1)%(N*N)] + spin_config[(x - i * (N-1) - 1)%(N*N)];
+    for (int i = 0; i < 2; i++)
+    {
+        dH += spin_config[(x + i * (N - 1) + 1) % (N * N)] + spin_config[(x - i * (N - 1) - 1) % (N * N)];
     }
 
     dH = 2 * J * spin_config[x] * dH;
@@ -62,16 +102,19 @@ double deltaH(std::vector<int> spin_config, double J, int x, int N){
     return dH;
 }
 
-double MetropolisSweep(std::vector<int> &spin_config, double J, double beta, int N){
-    int dH {0};
-    int accepted_per_sweep {0};
+double MetropolisSweep(std::vector<int> &spin_config, const double J, const double beta, const int N)
+{
+    int dH{0};
+    int accepted_per_sweep{0};
 
-    for(int x = 0; x < N*N; x++){
+    for (int x = 0; x < N * N; x++)
+    {
         dH = deltaH(spin_config, J, x, N);
-        if(randUnif(0.,1.) < exp(-beta*dH)){
+        if (randUnif(0., 1.) < exp(-beta * dH))
+        {
             spin_config[x] = -spin_config[x];
             accepted_per_sweep += 1;
         }
-
     }
+    return accepted_per_sweep / double(N * N);
 }

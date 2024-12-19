@@ -1,8 +1,8 @@
 #pragma once
 
-std::vector<int> coldStart(int N)
+std::vector<int> coldStart(const size_t N)
 {
-    return std::vector<int>(N*N, 0);
+    return std::vector<int>(N*N, 1);
 }
 
 void hotStart(std::vector<int> &spin_config)

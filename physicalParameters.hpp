@@ -49,9 +49,11 @@ double physicalParameters::get(const std::string &variable) const
     }
     else
     {
-        std::cerr << "Error: Variable \"" << variable << "\" not found." << std::endl;
-        std::cerr << "Fatal error in function \"" << __func__ << "\": " << "Something went wrong." << std::endl;
-        std::exit(1);
+        std::cerr << "Warning: Variable \"" << variable << "\" not found." << std::endl;
+        return 0.0;
+        /* Remove eventually */
+        //std::cerr << "Fatal error in function \"" << __func__ << "\": " << "Something went wrong." << std::endl;
+        //std::exit(1);
     }
 }
 

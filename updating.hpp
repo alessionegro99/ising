@@ -1,6 +1,7 @@
 #pragma once
 
-double deltaH(std::vector<int> spin_config, const double J, int x, int N){
+double deltaH(std::vector<int> spin_config, const double J, int x, const size_t N)
+{
     int dH{0};
 
     for (int i = 0; i < 2; i++)
@@ -13,19 +14,31 @@ double deltaH(std::vector<int> spin_config, const double J, int x, int N){
     return dH;
 }
 
-double MetropolisSweep(std::vector<int> &spin_config, const double J, const double beta, const int N)
+double updateMetropolis(std::vector<int> &spin_config, const double J, const double beta, const size_t N)
 {
-    int dH{0};
     int accepted_per_sweep{0};
 
     for (int x = 0; x < N * N; x++)
     {
-        dH = deltaH(spin_config, J, x, N);
-        if (randUnif(0., 1.) < exp(-beta * dH))
+        if (randUnif(0., 1.) < exp(-beta * deltaH(spin_config, J, x, N)))
         {
             spin_config[x] = -spin_config[x];
             accepted_per_sweep += 1;
         }
     }
     return accepted_per_sweep / double(N * N);
+}
+
+
+void updateHeatbath(std::vector<int> &spin_config, const double J, const double beta, const size_t N)
+{
+    std::vector<int> spin_config_tmp{spin_config};
+    for (int x = 0; x < N * N; x++)
+    {   
+        spin_config_tmp[x] = 1;
+        if (randUnif(0., 1.) < 1/(1 + exp(beta * deltaH(spin_config_tmp, J, x, N))))
+            spin_config[x] = 1;
+        else
+            spin_config[x] = -1;
+    }
 }

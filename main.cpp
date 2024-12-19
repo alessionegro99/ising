@@ -4,6 +4,8 @@
 #include <random>
 #include <sstream>
 #include <vector>
+#include <map>
+#include <string>
 
 #include "random.hpp"
 #include "updating.hpp"
@@ -11,14 +13,28 @@
 #include "spinConfiguration.hpp"
 #include "measurements.hpp"
 
-
-int main()
+int main(int argc, char *argv[])
 {
-    const int N{32};
-    const double beta{0.1};
-    const double J{1.};
-    const int Nsweeps{50};
-    const int discarded_sweeps {10};
+    if (argc != 3 || std::string(argv[1]) != "-f")
+    {
+        printUsage(argv[0]);
+
+        return 1;
+    }
+
+    std::string file_name = argv[2];
+    physicalParameters p_params;
+
+    if (!p_params.loadFromFile(file_name)){
+        return 1;
+    }
+
+    p_params.printAll();
+
+    const int N{int(p_params.get("N"))};
+    const double beta{p_params.get("beta")};
+    const double J{p_params.get("J")};
+    const int num_sweeps{int(p_params.get("num_sweeps"))};
 
     double m{0.};
     double acceptance_rate{0};
@@ -27,21 +43,23 @@ int main()
 
     hotStart(spin_config);
 
-    // printVec(spin_config);
+    std::ofstream file_data("data.dat", std::ios::app);
 
-    // std::cout << deltaH(spin_config, 1, 4, N) << std::endl;
-
-    for (int i = 0; i < Nsweeps; i++)
+    if (isFileEmpty)
     {
-        acceptance_rate += MetropolisSweep(spin_config, J, beta, N);
-        
-        if (i > discarded_sweeps)
-            m += measMagnetization(spin_config);
+        file_data << "m" << " " << "acceptance_rate" << "\n";
     }
-    std::cout << "Average acceptance rate is : " << acceptance_rate / double(Nsweeps) << "\n";
-    std::cout << "Average magnetization is : " << m / double(Nsweeps);
+
+    for (int i = 0; i < num_sweeps; i++)
+    {
+        acceptance_rate = MetropolisSweep(spin_config, J, beta, N);
+        m = measMagnetization(spin_config);
+
+        file_data << std::fixed << std::setprecision(14) << m << " ";
+        file_data << std::fixed << std::setprecision(14) << acceptance_rate << "\n";
+    }
+
+    file_data.close();
 
     return 0;
 }
-
-

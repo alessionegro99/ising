@@ -1,7 +1,5 @@
 #pragma once
 
-#include "random.hpp"
-
 double deltaH(std::vector<int> spin_config, const double J, int x, int N){
     int dH{0};
 

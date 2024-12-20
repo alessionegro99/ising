@@ -1,5 +1,15 @@
 #pragma once
 
+std::vector<int> computeBoltzmannWeights(const size_t S_DIM, const double beta){
+    std::vector<int> weights_Boltzmann;
+    
+    for(int i = -S_DIM; i <= S_DIM; i++){
+        weights_Boltzmann.push_back(exp(- beta * (4*i)));
+    }  
+    
+    return weights_Boltzmann;
+}
+
 double deltaH(std::vector<int> spin_config, const double J, int x, const size_t N)
 {
     int dH{0};

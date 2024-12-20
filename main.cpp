@@ -33,13 +33,15 @@ int main(int argc, char *argv[])
 
     p_params.printAll();
 
+    const size_t S_DIM{size_t(p_params.get("S_DIM"))};
+
     const size_t N{size_t(p_params.get("N"))};
     const size_t num_sweeps{size_t(p_params.get("num_sweeps"))};
 
     const double beta{p_params.get("beta")};
     const double J{p_params.get("J")};
 
-    bool start{bool(p_params.get("start"))};
+    const bool start{bool(p_params.get("start"))};
 
     double tot_magnetization{0.};
     double tot_energy{0.};
@@ -50,7 +52,9 @@ int main(int argc, char *argv[])
     if (start)
         hotStart(spin_config);
 
-    //printVec(spin_config);
+    // printVec(spin_config);
+
+    computeBoltzmannWeights(S_DIM, J, beta);
 
     std::ofstream file_data("data.dat", std::ios::app);
 
@@ -65,20 +69,22 @@ int main(int argc, char *argv[])
         file_data << "\n";
     }
 
-    for (int i = 0; i < num_sweeps; i++)
+    
+
+    /*for (int i = 0; i < num_sweeps; i++)
     {
         tot_magnetization = measMagnetization(spin_config);
-        file_data << std::fixed << std::setprecision(14) << tot_magnetization/(double) (spin_config.size());
+        file_data << std::fixed << std::setprecision(14) << tot_magnetization / (double)(spin_config.size());
         file_data << " ";
 
         tot_energy = measEnergy(spin_config, J, N);
-        file_data << std::fixed << std::setprecision(14) << tot_energy/(double) (spin_config.size());
+        file_data << std::fixed << std::setprecision(14) << tot_energy / (double)(spin_config.size());
         file_data << " ";
 
         // 0 for Metropolis 1 for heatbath (+ overrelaxation to be added)
         if (int(p_params.get("updating_procedure")) == 0)
         {
-            acceptance_rate = updateMetropolis(spin_config, J, beta, N);
+            acceptance_rate = updateMetropolis(spin_config, weights_Boltzmann, N, S_DIM);
             file_data << std::fixed << std::setprecision(14) << acceptance_rate;
             file_data << "\n";
         }
@@ -94,7 +100,7 @@ int main(int argc, char *argv[])
         else
             fatalError("Unknown updating procedure.", __func__);
     }
-
+*/
     file_data.close();
 
     return 0;

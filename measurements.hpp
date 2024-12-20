@@ -1,5 +1,8 @@
 #pragma once
 
+// Measures the total magnetization M of a given spin configuration.
+// The magnetization per unit volume can then be obtained dividing i 
+// the total volume.
 double measMagnetization(std::vector<int> &spin_config)
 {
     int total_size{int(spin_config.size())};
@@ -13,7 +16,10 @@ double measMagnetization(std::vector<int> &spin_config)
     return tot_magnetization;
 }
 
-double measEnergy(std::vector<int>& spin_config, const double J, const size_t N)
+// Measures the total energy E of a given spin configuration with interaction 
+// strength J. The energy per unit volume can then be obtained dividing by
+// the total volume. 
+double measEnergy(std::vector<int> &spin_config, const double J, const size_t N)
 {
     int tot_size{int(spin_config.size())};
     double tot_energy{0.};
@@ -27,9 +33,9 @@ double measEnergy(std::vector<int>& spin_config, const double J, const size_t N)
         {
             neigh_sum += spin_config[(x + i * (N - 1) + 1) % int(pow(N, S_DIM))] + spin_config[(x - i * (N - 1) - 1) % int(pow(N, S_DIM))];
         }
-        
+
         tot_energy += spin_config[x] * neigh_sum;
     }
 
-    return -J * double(tot_energy) ;
+    return -J * double(tot_energy);
 }

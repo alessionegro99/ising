@@ -1,6 +1,8 @@
+S_DIM 2
 N 32
-beta 0.1
-J 1.0
 num_sweeps 500
 start 0
-updating_procedure 1
+updating_procedure 0
+beta 0.1
+J 1.0
+

@@ -1,0 +1,3 @@
+/home/negro/software_stack/src/ising/build/CMakeFiles/main.dir
+/home/negro/software_stack/src/ising/build/CMakeFiles/edit_cache.dir
+/home/negro/software_stack/src/ising/build/CMakeFiles/rebuild_cache.dir
